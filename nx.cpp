@@ -66,6 +66,7 @@ namespace nl
 				quest = add_file("Quest.nx");
 				reactor = add_file("Reactor.nx");
 				skill = add_file("Skill.nx");
+				mobSkill = add_file("MobSkill.nx");
 				sound = add_file("Sound.nx");
 				string = add_file("String.nx");
 				tamingmob = add_file("TamingMob.nx");
