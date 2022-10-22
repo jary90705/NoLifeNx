@@ -45,7 +45,7 @@ namespace nl
 			return *files.back();
 		}
 
-		node base, character, effect, etc, item, map, mapPretty, mapLatest, map001, mob, morph, npc, quest, reactor, skill, sound, string, tamingmob, ui;
+		node base, character, effect, etc, item, map, mapPretty, mapLatest, map001, mob, morph, npc, quest, reactor, skill, sound, string, tamingmob, ui, mobSkill;
 
 		void load_all()
 		{
@@ -86,6 +86,7 @@ namespace nl
 				quest = base["Quest"];
 				reactor = base["Reactor"];
 				skill = base["Skill"];
+				mobSkill = base["MobSkill"];
 				sound = base["Sound"];
 				string = base["String"];
 				tamingmob = base["TamingMob"];
