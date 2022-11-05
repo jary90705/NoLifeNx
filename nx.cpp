@@ -20,7 +20,7 @@
 #include "node.hpp"
 #include <io.h>
 #include <fstream>
-#include <map>
+#include <unordered_map>
 #include "iostream"
 
 #include <fstream>
@@ -33,7 +33,7 @@ namespace nl
     namespace nx
     {
         std::vector<std::unique_ptr<file>> files;
-        std::map<std::string, node> nodes;
+        std::unordered_map<std::string, node> nodes;
 
         bool exists(std::string name)
         {
@@ -52,7 +52,7 @@ namespace nl
 
         node base, character, effect, etc, item, map, mob, morph, npc, quest, reactor, skill, sound, string, tamingmob, ui, mobSkill;
 
-        void getFiles(std::string path, std::string parentNodeName) {
+        void getFiles(std::string path, std::string oriPath, std::string parentNodeName) {
             intptr_t   hFile = 0;
             struct _finddata_t fileinfo;
             std::string p;
@@ -63,15 +63,14 @@ namespace nl
                         if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
                             std::string name = fileinfo.name;
                             auto node = parentNodeName + "/" + name;
-                            getFiles(p.assign(path).append("\\").append(fileinfo.name), node);
+                            getFiles(p.assign(path).append("\\").append(fileinfo.name), oriPath + name + "\\", node);
                         }
                     } else {
                         std::string fileName = fileinfo.name;
                         std::string name = fileName;
                         name.erase(name.end() - 3, name.end());
-                        auto file = add_file(".\\Data\\Skill\\" + fileName);
+                        auto file = add_file(oriPath + fileName);
                         nodes[parentNodeName + "/" + name + ".img"] = file;
-                        std::cout << parentNodeName + "/" + name << std::endl;
                     }
                 } while (_findnext(hFile, &fileinfo) == 0);
                 _findclose(hFile);
@@ -85,36 +84,36 @@ namespace nl
             {
                 base = add_file("Base.nx");
                 character = add_file("Character.nx");
-                getFiles("./Data/Character", "Character");
+                getFiles("./Data/Character", ".\\Data\\Character\\", "Character");
                 effect = add_file("Effect.nx");
-                getFiles("./Data/Effect", "Effect");
+                getFiles("./Data/Effect", ".\\Data\\Effect\\", "Effect");
                 etc = add_file("Etc.nx");
-                getFiles("./Data/Etc", "Etc");
+                getFiles("./Data/Etc", ".\\Data\\Etc\\", "Etc");
                 item = add_file("Item.nx");
-                getFiles("./Data/Item", "Item");
+                getFiles("./Data/Item", ".\\Data\\Item\\", "Item");
                 map = add_file("Map.nx");
-                getFiles("./Data/Map", "Map");
+                getFiles("./Data/Map", ".\\Data\\Map\\", "Map");
                 mob = add_file("Mob.nx");
-                getFiles("./Data/Mob", "Mob");
+                getFiles("./Data/Mob", ".\\Data\\Mob\\", "Mob");
                 morph = add_file("Morph.nx");
-                getFiles("./Data/Morph", "Morph");
+                getFiles("./Data/Morph", ".\\Data\\Morph\\", "Morph");
                 npc = add_file("Npc.nx");
-                getFiles("./Data/Npc", "Npc");
+                getFiles("./Data/Npc", ".\\Data\\Npc\\", "Npc");
                 quest = add_file("Quest.nx");
-                getFiles("./Data/Quest", "Quest");
+                getFiles("./Data/Quest", ".\\Data\\Quest\\", "Quest");
                 reactor = add_file("Reactor.nx");
-                getFiles("./Data/Reactor", "Reactor");
+                getFiles("./Data/Reactor", ".\\Data\\Reactor\\", "Reactor");
                 skill = add_file("Skill.nx");
-                getFiles("./Data/Skill", "Skill");
+                getFiles("./Data/Skill", ".\\Data\\Skill\\", "Skill");
                 mobSkill = add_file("MobSkill.nx");
                 sound = add_file("Sound.nx");
-                getFiles("./Data/Sound", "Sound");
+                getFiles("./Data/Sound", ".\\Data\\Sound\\", "Sound");
                 string = add_file("String.nx");
-                getFiles("./Data/String", "String");
+                getFiles("./Data/String", ".\\Data\\String\\", "String");
                 tamingmob = add_file("TamingMob.nx");
-                getFiles("./Data/TamingMob", "TamingMob");
+                getFiles("./Data/TamingMob", ".\\Data\\TamingMob\\", "TamingMob");
                 ui = add_file("UI.nx");
-                getFiles("./Data/UI", "UI");
+                getFiles("./Data/UI", ".\\Data\\UI\\", "UI");
             }
             else if (exists("Data.nx"))
             {
