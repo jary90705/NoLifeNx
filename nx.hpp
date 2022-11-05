@@ -17,6 +17,8 @@
 //////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "nxfwd.hpp"
+#include <map>
+#include "string"
 
 namespace nl
 {
@@ -24,6 +26,7 @@ namespace nl
 	{
 		// Pre-defined nodes to access standard MapleStory style data
 		// Make sure you called load_all first
+        extern std::map<std::string, node> nodes;
 		extern node base, character, effect, etc, item, map, mapPretty, mapLatest, map001, mob, morph, npc, quest, reactor, skill, sound, string, tamingmob, ui, mobSkill;
 
 		// Loads the pre-defined nodes from a standard setup of nx files for MapleStory

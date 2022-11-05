@@ -19,6 +19,8 @@
 #include "file.hpp"
 #include "node.hpp"
 #include <io.h>
+#include <fstream>
+#include <map>
 #include "iostream"
 
 #include <fstream>
@@ -28,104 +30,116 @@
 
 namespace nl
 {
-	namespace nx
-	{
-		std::vector<std::unique_ptr<file>> files;
+    namespace nx
+    {
+        std::vector<std::unique_ptr<file>> files;
+        std::map<std::string, node> nodes;
 
-		bool exists(std::string name)
-		{
-			return std::ifstream(name).is_open();
-		}
+        bool exists(std::string name)
+        {
+            return std::ifstream(name).is_open();
+        }
 
-		node add_file(std::string name)
-		{
-			if (!exists(name))
-				return {};
+        node add_file(std::string name)
+        {
+            if (!exists(name))
+                return {};
 
-			files.emplace_back(new file(name));
+            files.emplace_back(new file(name));
 
-			return *files.back();
-		}
+            return *files.back();
+        }
 
-		node base, character, effect, etc, item, map, mapPretty, mapLatest, map001, mob, morph, npc, quest, reactor, skill, sound, string, tamingmob, ui, mobSkill;
+        node base, character, effect, etc, item, map, mob, morph, npc, quest, reactor, skill, sound, string, tamingmob, ui, mobSkill;
 
-		void getFiles(std::string path) {
-			//檔案控制代碼  
-			long   hFile   =   0;  
-			//檔案資訊  
-			struct _finddata_t fileinfo;  
-			std::string p;  
-			if((hFile = _findfirst(p.assign(path).append("\\*").c_str(),&fileinfo)) !=  -1)  
-			{  
-				do  
-				{  
-					//如果是目錄,迭代之  
-					//如果不是,加入列表  
-					if((fileinfo.attrib &  _A_SUBDIR))  
-					{  
-						if(strcmp(fileinfo.name,".") != 0  &&  strcmp(fileinfo.name,"..") != 0)  
-							getFiles( p.assign(path).append("\\").append(fileinfo.name));  
-					}  
-					else  
-					{  
-						//files.push_back(p.assign(path).append("\\").append(fileinfo.name) );  
-						std::cout << path << "/" << fileinfo.name << std::endl;
-					}  
-				}while(_findnext(hFile, &fileinfo)  == 0);  
-				_findclose(hFile);  
-			}
-		}
+        void getFiles(std::string path, std::string parentNodeName) {
+            intptr_t   hFile = 0;
+            struct _finddata_t fileinfo;
+            std::string p;
+            if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1) {
+                do {
+                    if ((fileinfo.attrib &  _A_SUBDIR))//是否為資料夾
+                    {
+                        if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
+                            std::string name = fileinfo.name;
+                            auto node = parentNodeName + "/" + name;
+                            getFiles(p.assign(path).append("\\").append(fileinfo.name), node);
+                        }
+                    } else {
+                        std::string fileName = fileinfo.name;
+                        std::string name = fileName;
+                        name.erase(name.end() - 3, name.end());
+                        auto file = add_file(".\\Data\\Skill\\" + fileName);
+                        nodes[parentNodeName + "/" + name + ".img"] = file;
+                        std::cout << parentNodeName + "/" + name << std::endl;
+                    }
+                } while (_findnext(hFile, &fileinfo) == 0);
+                _findclose(hFile);
+            }
+        }
 
-		void load_all()
-		{
-			getFiles("");
-			if (exists("Base.nx"))
-			{
-				base = add_file("Base.nx");
-				character = add_file("Character.nx");
-				effect = add_file("Effect.nx");
-				etc = add_file("Etc.nx");
-				item = add_file("Item.nx");
-				map = add_file("Map.nx");
-				mapPretty = add_file("MapPretty.nx");
-				mapLatest = add_file("MapLatest.nx");
-				map001 = add_file("Map001.nx");
-				mob = add_file("Mob.nx");
-				morph = add_file("Morph.nx");
-				npc = add_file("Npc.nx");
-				quest = add_file("Quest.nx");
-				reactor = add_file("Reactor.nx");
-				skill = add_file("Skill.nx");
-				mobSkill = add_file("MobSkill.nx");
-				sound = add_file("Sound.nx");
-				string = add_file("String.nx");
-				tamingmob = add_file("TamingMob.nx");
-				ui = add_file("UI.nx");
-			}
-			else if (exists("Data.nx"))
-			{
-				base = add_file("Data.nx");
-				character = base["Character"];
-				effect = base["Effect"];
-				etc = base["Etc"];
-				item = base["Item"];
-				map = base["Map"];
-				mob = base["Mob"];
-				morph = base["Morph"];
-				npc = base["Npc"];
-				quest = base["Quest"];
-				reactor = base["Reactor"];
-				skill = base["Skill"];
-				mobSkill = base["MobSkill"];
-				sound = base["Sound"];
-				string = base["String"];
-				tamingmob = base["TamingMob"];
-				ui = base["UI"];
-			}
-			else
-			{
-				throw std::runtime_error("Failed to locate nx files.");
-			}
-		}
-	}
+        void load_all()
+        {
+
+            if (exists("Base.nx"))
+            {
+                base = add_file("Base.nx");
+                character = add_file("Character.nx");
+                getFiles("./Data/Character", "Character");
+                effect = add_file("Effect.nx");
+                getFiles("./Data/Effect", "Effect");
+                etc = add_file("Etc.nx");
+                getFiles("./Data/Etc", "Etc");
+                item = add_file("Item.nx");
+                getFiles("./Data/Item", "Item");
+                map = add_file("Map.nx");
+                getFiles("./Data/Map", "Map");
+                mob = add_file("Mob.nx");
+                getFiles("./Data/Mob", "Mob");
+                morph = add_file("Morph.nx");
+                getFiles("./Data/Morph", "Morph");
+                npc = add_file("Npc.nx");
+                getFiles("./Data/Npc", "Npc");
+                quest = add_file("Quest.nx");
+                getFiles("./Data/Quest", "Quest");
+                reactor = add_file("Reactor.nx");
+                getFiles("./Data/Reactor", "Reactor");
+                skill = add_file("Skill.nx");
+                getFiles("./Data/Skill", "Skill");
+                mobSkill = add_file("MobSkill.nx");
+                sound = add_file("Sound.nx");
+                getFiles("./Data/Sound", "Sound");
+                string = add_file("String.nx");
+                getFiles("./Data/String", "String");
+                tamingmob = add_file("TamingMob.nx");
+                getFiles("./Data/TamingMob", "TamingMob");
+                ui = add_file("UI.nx");
+                getFiles("./Data/UI", "UI");
+            }
+            else if (exists("Data.nx"))
+            {
+                base = add_file("Data.nx");
+                character = base["Character"];
+                effect = base["Effect"];
+                etc = base["Etc"];
+                item = base["Item"];
+                map = base["Map"];
+                mob = base["Mob"];
+                morph = base["Morph"];
+                npc = base["Npc"];
+                quest = base["Quest"];
+                reactor = base["Reactor"];
+                skill = base["Skill"];
+                mobSkill = base["MobSkill"];
+                sound = base["Sound"];
+                string = base["String"];
+                tamingmob = base["TamingMob"];
+                ui = base["UI"];
+            }
+            else
+            {
+                throw std::runtime_error("Failed to locate nx files.");
+            }
+        }
+    }
 }
