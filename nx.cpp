@@ -18,6 +18,8 @@
 #include "nx.hpp"
 #include "file.hpp"
 #include "node.hpp"
+#include <io.h>
+#include "iostream"
 
 #include <fstream>
 #include <vector>
@@ -47,8 +49,36 @@ namespace nl
 
 		node base, character, effect, etc, item, map, mapPretty, mapLatest, map001, mob, morph, npc, quest, reactor, skill, sound, string, tamingmob, ui, mobSkill;
 
+		void getFiles(std::string path) {
+			//檔案控制代碼  
+			long   hFile   =   0;  
+			//檔案資訊  
+			struct _finddata_t fileinfo;  
+			std::string p;  
+			if((hFile = _findfirst(p.assign(path).append("\\*").c_str(),&fileinfo)) !=  -1)  
+			{  
+				do  
+				{  
+					//如果是目錄,迭代之  
+					//如果不是,加入列表  
+					if((fileinfo.attrib &  _A_SUBDIR))  
+					{  
+						if(strcmp(fileinfo.name,".") != 0  &&  strcmp(fileinfo.name,"..") != 0)  
+							getFiles( p.assign(path).append("\\").append(fileinfo.name));  
+					}  
+					else  
+					{  
+						//files.push_back(p.assign(path).append("\\").append(fileinfo.name) );  
+						std::cout << path << "/" << fileinfo.name << std::endl;
+					}  
+				}while(_findnext(hFile, &fileinfo)  == 0);  
+				_findclose(hFile);  
+			}
+		}
+
 		void load_all()
 		{
+			getFiles("");
 			if (exists("Base.nx"))
 			{
 				base = add_file("Base.nx");
